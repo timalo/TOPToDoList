@@ -7,7 +7,7 @@ function component() {
     sideBar.classList.add("sideBar");
 
     const showAllToDosOption = document.createElement('div');
-    showAllToDosOption.classList.add("option")
+    showAllToDosOption.classList.add("sidebarItem")
     showAllToDosOption.innerHTML = "Show All";
     sideBar.appendChild(showAllToDosOption);
     //On the side panel we could have list of projects and as the last option a button for adding a new project
@@ -38,21 +38,48 @@ function component() {
     return container;
 }
 
-function testFunction(toDoList) {
+function iterateToDoList(toDoList) {
     toDoList.forEach((item) => {
         drawToDo(item);
     })
 }
 
 function drawToDo(todo) {
-    console.log("trying to print content.");
     const contentMain = document.getElementsByClassName("contentMain")[0];
     let toDoDiv = document.createElement('div');
     
-    toDoDiv.innerHTML = todo.title + " " + todo.desc + " " + todo.dueDate + " " + todo.priority + " " + todo.done;
-    //The above line will be split into several divs later.
+    //toDoDiv.innerHTML = todo.title + " " + todo.desc + " " + todo.dueDate + " " + todo.priority + " " + todo.done;
+    //The above line will be split into several divs later. desc and done are not shown as they are.
+    //Description only shown when todo is expanded. Done status is shown with the checkbox.
+
+    addCheckbox(toDoDiv);
+    addTitleDiv(todo.title, toDoDiv);
+    addDueDateDiv(todo.dueDate, toDoDiv);
+
     toDoDiv.classList.add("todoItem");
     contentMain.appendChild(toDoDiv);
 }
 
-export { component, testFunction }
+function addCheckbox(div) {
+    let checkboxDiv = document.createElement('div');
+    checkboxDiv.classList.add("checkboxDiv");
+    checkboxDiv.innerHTML = "<input type=\"checkbox\">";
+    div.appendChild(checkboxDiv);
+}
+
+function addTitleDiv(todoTitle, div) {
+    let titleDiv = document.createElement('div');
+    titleDiv.classList.add("todoTitleDiv");
+    titleDiv.innerHTML = todoTitle;
+    div.appendChild(titleDiv);
+}
+
+function addDueDateDiv(todoDueDate, div) {
+    let dueDateDiv = document.createElement('div');
+    dueDateDiv.classList.add("dueDateDiv");
+    dueDateDiv.innerHTML = todoDueDate;
+    div.appendChild(dueDateDiv);
+}
+
+
+export { component, iterateToDoList }
