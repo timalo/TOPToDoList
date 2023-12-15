@@ -5,7 +5,7 @@ import "./styles.css";
 //Priority object could be int on range 1-5, 5 being the most important, and 1 having least importance
 
 let toDoList = []; //all todo items will be stored here. 
-let projectList = []; //all projects here. Every todo has the project it is associated to.
+let projectList = []; //all projects here. todo can have a projectID it is associated to.
 
 class ToDoObject {
     constructor(title, desc, dueDate, priority, projectId) {
@@ -16,11 +16,15 @@ class ToDoObject {
         this.projectId = projectId;
         this.done = false;
     }
-    getInfo() {
-        return this.title + " " + this.desc + " " + this.dueDate + " " + this.priority;
-    }
+
     toggleDone(){
         this.done = !this.done;
+    }
+    setPriority(priority) {
+        this.priority = priority;
+    }
+    setTitle(title) {
+        this.title = title;
     }
 }
 
@@ -35,7 +39,5 @@ let toDoItem = new ToDoObject("test", "This is a test to do.", Date.now(), 5);
 let toDoItem2 = new ToDoObject("This is a proper fine well structured sentence.", "This is the second test item.", Date.now(), 2);
 toDoList.push(toDoItem);
 toDoList.push(toDoItem2);
-
-
 
 iterateToDoList(toDoList);

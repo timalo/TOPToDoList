@@ -15,13 +15,31 @@ function component() {
     const contentDiv = document.createElement('div');
     contentDiv.classList.add("contentDiv");
 
+    const contentHeader = document.createElement('div');
+    contentHeader.classList.add("contentHeader");
+    contentHeader.innerHTML = "All todos";
+
     const contentArea = document.createElement('div');
     contentArea.classList.add("contentArea");
 
+    contentDiv.appendChild(contentHeader);
     contentDiv.appendChild(contentArea);
 
     container.appendChild(sideBar);
     container.appendChild(contentDiv);
+
+    const modalDiv = document.createElement('div');
+    modalDiv.classList.add("modal");
+
+    const modalContentDiv = document.createElement('div');
+    modalContentDiv.classList.add("modalContent");
+    modalContentDiv.innerHTML = "";
+    //TODO: implement modal content divs here. 
+    //Probably want to give each todo title, desc, etc a separate div in the modal.
+    //After that, will have to start implementing changing, deleting todos etc.
+
+    modalDiv.appendChild(modalContentDiv);
+    container.appendChild(modalDiv);
 
     const contentMain = document.createElement('div');
     contentMain.classList.add("contentMain");
@@ -34,10 +52,22 @@ function component() {
     const addTodoButton = document.createElement('button');
     addTodoButton.classList.add("addButton");
     addTodoButton.innerHTML = "+";
+    addTodoButton.onclick = function() {
+        modalDiv.style.display = "block";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modalDiv) {
+            modalDiv.style.display = "none";
+        }
+    }
+
     contentFooter.appendChild(addTodoButton);
+
     return container;
 }
 
+//Used to render todos to content box
 function iterateToDoList(toDoList) {
     toDoList.forEach((item) => {
         drawToDo(item);
@@ -48,10 +78,7 @@ function drawToDo(todo) {
     const contentMain = document.getElementsByClassName("contentMain")[0];
     let toDoDiv = document.createElement('div');
     
-    //toDoDiv.innerHTML = todo.title + " " + todo.desc + " " + todo.dueDate + " " + todo.priority + " " + todo.done;
-    //The above line will be split into several divs later. desc and done are not shown as they are.
     //Description only shown when todo is expanded. Done status is shown with the checkbox.
-
     addCheckbox(toDoDiv);
     addTitleDiv(todo.title, toDoDiv);
     addDueDateDiv(todo.dueDate, toDoDiv);
@@ -80,6 +107,5 @@ function addDueDateDiv(todoDueDate, div) {
     dueDateDiv.innerHTML = todoDueDate;
     div.appendChild(dueDateDiv);
 }
-
 
 export { component, iterateToDoList }

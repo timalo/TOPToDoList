@@ -14,15 +14,18 @@ body {
 }
 
 .sideBar {
-    background-color: #DBDBDB;
+    background-color: #102542;
+    color: white;
     display: flex;
     max-height: 100vh;
     min-width: 200px;
+    border-right: 4px solid gray;
 }
 
 .contentDiv {
     display: flex;
-    background-color: #AAAAAA;
+    flex-direction: column;
+    background-color: #203042;
     height: 100%;
     max-height: 100vh;
     width: 100%;
@@ -30,13 +33,22 @@ body {
     align-items: center;
 }
 
+.contentHeader {
+    color: white;
+    display: flex;
+    align-self: center;
+    font-size: 2em;
+    font-weight: 800;
+    margin-bottom: 1%;
+}
+
 .contentArea {
+    background-color: #DDC9B4;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     height: 80%;
     width: 50%;
-    border: solid 1px black;
 }
 
 .contentFooter {
@@ -64,8 +76,10 @@ body {
 }
 
 .todoItem {
+    margin: 5px 0 5px 0;
     display: grid;
-    grid-template-columns: 1fr 2fr 2fr 5fr;
+    grid-template-columns: 1fr 7fr 2fr repeat(2, 1fr);
+    gap: 5px;
     align-items: center;
 }
 
@@ -96,3 +110,34 @@ body {
     width: 100%;
     height: 5%;
 }
+
+/* modal stuff */
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+  
+  /* Modal Content/Box */
+  .modalContent {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 35%; /* Could be more or less, depending on screen size */
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
