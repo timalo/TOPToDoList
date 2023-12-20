@@ -1,4 +1,4 @@
-import { component, iterateToDoList } from "./functions.js";
+import { component, renderTodos } from "./functions.js";
 import "./styles.css";
 
 //To-Do object should have at least a title, description, due date, and a priority, also an optional project it is under.
@@ -40,4 +40,4 @@ let toDoItem2 = new ToDoObject("This is a proper fine well structured sentence."
 toDoList.push(toDoItem);
 toDoList.push(toDoItem2);
 
-iterateToDoList(toDoList);
+renderTodos(toDoList); //This will be called for todos we want rendered.
