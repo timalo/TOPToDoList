@@ -1,3 +1,4 @@
+import {ToDoObject, toDoList, projectList } from "./index.js";
 
 function component() { //This function creates the HTML structure for the page on page load.
     const container = document.createElement('div');
@@ -38,6 +39,7 @@ function component() { //This function creates the HTML structure for the page o
     modalDiv.classList.add("modal");
 
     const modalContentDiv = document.createElement('form');
+    modalContentDiv.onsubmit = function(){ submitTodo(); return false};
     modalContentDiv.classList.add("modalContent");
     
     
@@ -89,15 +91,21 @@ function component() { //This function creates the HTML structure for the page o
     priorityInputLabel.innerHTML = "Priority: ";
     const priorityInput = document.createElement('select');
     priorityInput.classList.add("priorityInput");
-    priorityInput.setAttribute("type", "select")
+/*     priorityInput.setAttribute("type", "select")
     priorityInput.setAttribute("id", "priority");
-    priorityInput.setAttribute("name", "priority");
+    priorityInput.setAttribute("name", "priority"); */
+    const placeholderPriority = document.createElement('option');
+    placeholderPriority.innerHTML = "";
+    placeholderPriority.disabled = true;
+    placeholderPriority.hidden = true;
+    placeholderPriority.selected = true;
     const minPriority = document.createElement('option');
     minPriority.innerHTML = "Low";
     const medPriority = document.createElement('option');
     medPriority.innerHTML = "Medium";
     const hiPriority = document.createElement('option');
     hiPriority.innerHTML = "High";
+    priorityInput.appendChild(placeholderPriority);
     priorityInput.appendChild(minPriority);
     priorityInput.appendChild(medPriority);
     priorityInput.appendChild(hiPriority);
@@ -110,7 +118,25 @@ function component() { //This function creates the HTML structure for the page o
 
     const submitButton = document.createElement('button');
     submitButton.classList.add("submitButton");
+    submitButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        const todoValidation = Validate();
+        if(todoValidation) {
+            let newTitle = modalTitleInput.value;
+            let newDescription = ""; //this is fukked up but will do.
+            if (modalDescriptionInput.value != "") {
+                newDescription = modalDescriptionInput.value;
+            }
+            let newDueDate = dueDateInput.value;
+            let newProject = ""; //for now
+            let newPriority = priorityInput.value;
+            submitTodo(newTitle, newDescription, newDueDate, newPriority, newProject); //This pushes the todo into the array.
+            clearModalInputs();
+        }
+    });
+
     submitButton.innerHTML = "Add todo";
+
     modalPriority.appendChild(submitButton);
 
     modalContentDiv.appendChild(modalPriority);
@@ -148,26 +174,57 @@ function component() { //This function creates the HTML structure for the page o
     return container;
 }
 
-function submitTodo() {
-    console.log("add todo with acceptable vars");
+function submitTodo(title, desc, dueDate, priority, projectId) {
+    console.log("adding todo");
+    console.log(title, desc, dueDate, projectId, priority);
+    let newTodo = new ToDoObject(title, desc, dueDate, priority, projectId);
+    toDoList.push(newTodo);
+    renderTodos(toDoList);
 }
 
-//Not sure if these will be used?
+function clearModalInputs() { //clears the modal and hides it
+    document.getElementsByClassName("titleInput")[0].value = "";
+    document.getElementsByClassName("descriptionInput")[0].value = "";
+    document.getElementsByClassName("dueDateInput")[0].value = "";
+    document.getElementsByClassName("projectInput")[0].value = "";
+    document.getElementsByClassName("priorityInput")[0].value = "";
+    document.getElementsByClassName("modal")[0].style.display = "none";
+}
+
+function Validate() { // returns true if new todo form is filled correctly. Throws alert if some of the required windows is not filled.
+    console.log("Validating form...");
+    if(document.getElementsByClassName("titleInput")[0].value == ""){
+        alert("Please enter a title.");
+        return false;
+    }
+    if (document.getElementsByClassName("dueDateInput")[0].value.length == 0) {
+        alert("Please enter a due date.");
+        return false;
+    }
+    if (document.getElementsByClassName("priorityInput")[0].value == "") {
+        alert("Please choose a priority for the todo.");
+        return false;
+    }
+    return true; // if reached here, form is valid.
+}
+
+/* Not sure if these will be used?
 function todoHandler() {
 
 }
 
 function projectHandler() {
 
-}
+} */
 
 
 function populateProjectList() {
-    return 0;
+    return 0; //? wtf
 }
 
 //Used to render todos to content box
 function renderTodos(toDoList) {
+    document.getElementsByClassName("contentMain")[0].innerHTML = ""; //clear the content window first.
     toDoList.forEach((item) => {
         drawToDo(item);
     })
