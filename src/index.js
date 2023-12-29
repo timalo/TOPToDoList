@@ -28,6 +28,12 @@ class ToDoObject {
     }
 }
 
+class Project {
+    constructor(title) {
+        this.title = title;
+    }
+}
+
 document.body.appendChild(component());
 
 //On page load we should have 'default' view of to-dos visible to the user. Probably just show all toDos
@@ -36,11 +42,12 @@ document.body.appendChild(component());
 
 //Could be a neat idea to have a progress bar on every project, based on how many of the todos are checked out as done.
 
-let toDoItem = new ToDoObject("test", "This is a test to do.", Date.now(), 5);
-let toDoItem2 = new ToDoObject("This is a proper fine well structured sentence.", "This is the second test item.", Date.now(), 2);
+//Placeholder todos to populate the page on load. 
+/* let toDoItem = new ToDoObject("test", "This is a test to do.", Date.now(), "Low");
+let toDoItem2 = new ToDoObject("This is a proper fine well structured sentence.", "This is the second test item.", Date.now(), "High");
 toDoList.push(toDoItem);
-toDoList.push(toDoItem2);
+toDoList.push(toDoItem2); */
 
 renderTodos(toDoList); //This will be called for todos we want rendered.
 
-export { ToDoObject, toDoList, projectList }
+export { ToDoObject, Project, toDoList, projectList }

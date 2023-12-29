@@ -1,4 +1,4 @@
-import {ToDoObject, toDoList, projectList } from "./index.js";
+import {ToDoObject, Project, toDoList, projectList } from "./index.js";
 
 function component() { //This function creates the HTML structure for the page on page load.
     const container = document.createElement('div');
@@ -8,14 +8,19 @@ function component() { //This function creates the HTML structure for the page o
     sideBar.classList.add("sideBar");
 
     const showAllToDosOption = document.createElement('div');
-    showAllToDosOption.classList.add("sidebarItem")
+    showAllToDosOption.classList.add("sidebarHeader")
     showAllToDosOption.innerHTML = "Show All";
     sideBar.appendChild(showAllToDosOption);
     //On the side panel we could have list of projects and as the last option a button for adding a new project
 
+    const sideBarContent = document.createElement('div');
+    sideBarContent.classList.add("sideBarContent");
+    sideBar.appendChild(sideBarContent);
+
     const addProjectButton = document.createElement('div');
-    addProjectButton.classList.add("sidebarItem");
+    addProjectButton.classList.add("sidebarFooter");
     addProjectButton.innerHTML = "New project"
+    addProjectButton.onclick = function(){ newProjectModal.style.display = "block"; }
     sideBar.appendChild(addProjectButton);
 
     const contentDiv = document.createElement('div');
@@ -34,6 +39,48 @@ function component() { //This function creates the HTML structure for the page o
     container.appendChild(sideBar);
     container.appendChild(contentDiv);
     
+    const newProjectModal = document.createElement('div');
+    newProjectModal.classList.add("projectModal");
+    const projectModalContentDiv = document.createElement('form');
+    projectModalContentDiv.classList.add("projectModalContent");
+
+    const projectModalHeader = document.createElement('p');
+    projectModalHeader.classList.add("modalHeader");
+    projectModalHeader.innerHTML = "Add new project";
+    projectModalContentDiv.appendChild(projectModalHeader);
+
+    const projectModalTitle = document.createElement('div');
+    projectModalTitle.classList.add("projectTitleDiv");
+    const projectModalTitleInput = document.createElement('input');
+    projectModalTitleInput.classList.add("projectTitleInput");
+    projectModalTitleInput.setAttribute("placeholder", "Project Title");
+    projectModalTitleInput.required = true;
+    
+    const projectModalButton = document.createElement('button');
+    projectModalButton.innerHTML = "Add new project";
+    projectModalButton.classList.add("projectModalButton");
+    projectModalButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        const todoProjectValidation = ValidateProject();
+        if(todoProjectValidation) {
+            let projectTitle = projectModalTitleInput.value;
+            submitProject(projectTitle); //This pushes the project into the array.
+            projectModalTitle.value = "";
+            newProjectModal.style.display = "none";
+        }
+    });
+
+    projectModalTitle.appendChild(projectModalTitleInput);
+    projectModalContentDiv.appendChild(projectModalTitle);
+    projectModalContentDiv.appendChild(projectModalButton);
+    newProjectModal.appendChild(projectModalContentDiv); //This looks absolutely horrible ;_;
+
+    const projectModalSubmitDiv = document.createElement('div');
+    projectModalSubmitDiv.classList.add("projectSubmitDiv");
+    const projectModalSubmitButton = document.createElement('button');
+    projectModalSubmitButton.classList.add("projectModalSubmitButton");
+    projectModalSubmitDiv.appendChild(projectModalSubmitButton);
+    
     //Modal window, hidden on page load.
     const modalDiv = document.createElement('div');
     modalDiv.classList.add("modal");
@@ -44,6 +91,11 @@ function component() { //This function creates the HTML structure for the page o
     
     
     //modal form -------------------------
+    const modalHeader = document.createElement('p');
+    modalHeader.innerHTML = "Add new todo";
+    modalHeader.classList.add("modalHeader");
+    modalContentDiv.appendChild(modalHeader);
+
     const modalTitle = document.createElement('div');
     modalTitle.classList.add('modalTitleDiv');
     const modalTitleInput = document.createElement('input');
@@ -143,6 +195,7 @@ function component() { //This function creates the HTML structure for the page o
     //Modal form end---------------------
 
     modalDiv.appendChild(modalContentDiv);
+    container.appendChild(newProjectModal);
     container.appendChild(modalDiv);
 
 
@@ -168,6 +221,10 @@ function component() { //This function creates the HTML structure for the page o
         if (event.target == modalDiv) {
             modalDiv.style.display = "none";
         }
+        else if (event.target == newProjectModal) {
+            newProjectModal.style.display = "none";
+            document.getElementsByClassName("projectTitleInput")[0].value = "";
+        }
     }
 
     contentFooter.appendChild(addTodoButton);
@@ -182,6 +239,13 @@ function submitTodo(title, desc, dueDate, priority, projectId) {
     renderTodos(toDoList);
 }
 
+function submitProject(title) {
+    console.log("adding project: " + title);
+    let newProject = new Project(title);
+    projectList.push(newProject);
+    renderProjects(projectList);
+}
+
 function clearModalInputs() { //clears the modal and hides it
     document.getElementsByClassName("titleInput")[0].value = "";
     document.getElementsByClassName("descriptionInput")[0].value = "";
@@ -191,7 +255,7 @@ function clearModalInputs() { //clears the modal and hides it
     document.getElementsByClassName("modal")[0].style.display = "none";
 }
 
-function Validate() { // returns true if new todo form is filled correctly. Throws alert if some of the required windows is not filled.
+function Validate() { // returns true if new todo modal form is filled correctly. Throws alert if some of the required windows is not filled.
     console.log("Validating form...");
     if(document.getElementsByClassName("titleInput")[0].value == ""){
         alert("Please enter a title.");
@@ -208,18 +272,19 @@ function Validate() { // returns true if new todo form is filled correctly. Thro
     return true; // if reached here, form is valid.
 }
 
-/* Not sure if these will be used?
-function todoHandler() {
-
+function ValidateProject() { //works the same as for the todo modal. returns bool for validity.
+    if(document.getElementsByClassName("projectTitleInput")[0].value == "") {
+        alert("Enter a title for the project.");
+        return false;
+    }
+    return true;
 }
 
-function projectHandler() {
-
-} */
-
-
-function populateProjectList() {
-    return 0; //? wtf
+function renderProjects(projectList) {
+    document.getElementsByClassName("sideBarContent")[0].innerHTML = "";
+    projectList.forEach((item) => {
+        drawProject(item);
+    })
 }
 
 //Used to render todos to content box
@@ -230,6 +295,14 @@ function renderTodos(toDoList) {
     })
 }
 
+function drawProject(project) {
+    const sideBar = document.getElementsByClassName("sideBarContent")[0];
+    let projectDiv = document.createElement('div');
+    projectDiv.classList.add("sideItem");
+    projectDiv.innerHTML = project.title;
+    sideBar.appendChild(projectDiv)
+}
+
 function drawToDo(todo) {
     const contentMain = document.getElementsByClassName("contentMain")[0];
     let toDoDiv = document.createElement('div');
@@ -238,6 +311,7 @@ function drawToDo(todo) {
     addCheckbox(toDoDiv);
     addTitleDiv(todo.title, toDoDiv);
     addDueDateDiv(todo.dueDate, toDoDiv);
+    addPriorityDiv(todo.priority, toDoDiv);
     addDetailsButton(toDoDiv);
 
     toDoDiv.classList.add("todoItem");
@@ -259,10 +333,21 @@ function addTitleDiv(todoTitle, div) {
 }
 
 function addDueDateDiv(todoDueDate, div) {
+    console.log("adding duedate");
     let dueDateDiv = document.createElement('div');
     dueDateDiv.classList.add("dueDateDiv");
     dueDateDiv.innerHTML = todoDueDate;
     div.appendChild(dueDateDiv);
+}
+
+function addPriorityDiv(todoPriority, div) {
+    console.log("tryign to add priority div with value: " + todoPriority);
+    let priorityDiv = document.createElement('div');
+    if(todoPriority == "Low"){priorityDiv.classList.add("low", "priority")};
+    if(todoPriority == "Medium"){priorityDiv.classList.add("medium", "priority")};
+    if(todoPriority == "High"){priorityDiv.classList.add("high", "priority")};
+    priorityDiv.innerHTML = todoPriority;
+    div.appendChild(priorityDiv);
 }
 
 function addDetailsButton(div) {
