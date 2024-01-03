@@ -29,8 +29,9 @@ class ToDoObject {
 }
 
 class Project {
-    constructor(title) {
+    constructor(title, projectId) {
         this.title = title;
+        this.projectId = projectId;
     }
 }
 

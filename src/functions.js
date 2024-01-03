@@ -1,5 +1,6 @@
 import {ToDoObject, Project, toDoList, projectList } from "./index.js";
 
+//This file bloated terribly. This is not good. 
 function component() { //This function creates the HTML structure for the page on page load.
     const container = document.createElement('div');
     container.classList.add("container");
@@ -65,7 +66,7 @@ function component() { //This function creates the HTML structure for the page o
         if(todoProjectValidation) {
             let projectTitle = projectModalTitleInput.value;
             submitProject(projectTitle); //This pushes the project into the array.
-            projectModalTitle.value = "";
+            projectModalTitleInput.value = "";
             newProjectModal.style.display = "none";
         }
     });
@@ -89,7 +90,6 @@ function component() { //This function creates the HTML structure for the page o
     modalContentDiv.onsubmit = function(){ submitTodo(); return false};
     modalContentDiv.classList.add("modalContent");
     
-    
     //modal form -------------------------
     const modalHeader = document.createElement('p');
     modalHeader.innerHTML = "Add new todo";
@@ -112,7 +112,6 @@ function component() { //This function creates the HTML structure for the page o
     modalDescriptionInput.setAttribute("placeholder", "Description. Can be left empty.");
     modalDescription.appendChild(modalDescriptionInput);
     modalContentDiv.appendChild(modalDescription);
-
 
     const modalDueDate = document.createElement('div');
     modalDueDate.classList.add("modalDueDate");
@@ -215,11 +214,14 @@ function component() { //This function creates the HTML structure for the page o
         modalDiv.style.display = "block";
         //when this button is clicked, we want to populate the dropdown menu selector for a project with existing projects.
         //Could be done calling a function which changes modalProject innerHTML
+        addProjectsToModal(projectList);
     }
 
     window.onclick = function(event) {
         if (event.target == modalDiv) {
             modalDiv.style.display = "none";
+            document.getElementsByClassName("projectInput")[0].innerHTML = ""; //empties the project list if the modal is hidden.
+            //This prevent duplicate projects from showing up.
         }
         else if (event.target == newProjectModal) {
             newProjectModal.style.display = "none";
@@ -231,6 +233,25 @@ function component() { //This function creates the HTML structure for the page o
     return container;
 }
 
+function addProjectsToModal(projectList) {
+    const projectInputDiv = document.getElementsByClassName("projectInput")[0];
+    let emptyOption = document.createElement('option');
+    emptyOption.selected = true;
+    emptyOption.value = "";
+    emptyOption.innerHTML = "<no project>";
+    projectInputDiv.appendChild(emptyOption);
+    projectList.forEach((item) => {
+        addProjectSelect(item, projectInputDiv);
+    })
+}
+
+function addProjectSelect(project, div){
+    let optionDiv = document.createElement('option');
+    optionDiv.value = project.projectId;
+    optionDiv.innerHTML = project.title;
+    div.appendChild(optionDiv);
+}
+
 function submitTodo(title, desc, dueDate, priority, projectId) {
     console.log("adding todo");
     console.log(title, desc, dueDate, projectId, priority);
@@ -240,8 +261,11 @@ function submitTodo(title, desc, dueDate, priority, projectId) {
 }
 
 function submitProject(title) {
+    let newProjectId = findFirstFreeID(projectList);
     console.log("adding project: " + title);
-    let newProject = new Project(title);
+    console.log("project ID: " + newProjectId);
+
+    let newProject = new Project(title, newProjectId);
     projectList.push(newProject);
     renderProjects(projectList);
 }
@@ -269,7 +293,7 @@ function Validate() { // returns true if new todo modal form is filled correctly
         alert("Please choose a priority for the todo.");
         return false;
     }
-    return true; // if reached here, form is valid.
+    return true; // if the function reaches here, the form is valid.
 }
 
 function ValidateProject() { //works the same as for the todo modal. returns bool for validity.
@@ -299,7 +323,9 @@ function drawProject(project) {
     const sideBar = document.getElementsByClassName("sideBarContent")[0];
     let projectDiv = document.createElement('div');
     projectDiv.classList.add("sideItem");
-    projectDiv.innerHTML = project.title;
+    projectDiv.innerHTML = project.title + " " + project.projectId;
+    projectDiv.onclick = function(){ renderProjectTodos(); }
+    //TODO: function that renders todos of only the selected project.
     sideBar.appendChild(projectDiv)
 }
 
@@ -341,7 +367,7 @@ function addDueDateDiv(todoDueDate, div) {
 }
 
 function addPriorityDiv(todoPriority, div) {
-    console.log("tryign to add priority div with value: " + todoPriority);
+    console.log("trying to add priority div with value: " + todoPriority);
     let priorityDiv = document.createElement('div');
     if(todoPriority == "Low"){priorityDiv.classList.add("low", "priority")};
     if(todoPriority == "Medium"){priorityDiv.classList.add("medium", "priority")};
@@ -355,6 +381,26 @@ function addDetailsButton(div) {
     detailsButton.classList.add("detailsButton");
     detailsButton.innerHTML = "Details / Edit";
     div.appendChild(detailsButton);
+}
+
+function findFirstFreeID(list) { 
+    // This is used to find the first free projectId. 
+    // If a project is deleted, all its associated todos are deleted and the projectId is freed up.
+    // if a project is deleted from between other projects, it is possible to find the free projectId with this func.
+    if (list.length == 0) {
+        return 1;
+    }
+    let counter = 1;
+    for(let i = 0; i < list.length; i++) {
+        if (counter == list[i].projectId) {
+            counter++;
+        }
+        else {
+            // push project to array in correct index here.
+            // .splice() works here. f. ex. .splice(2, 0, 3) inserts number 3 at index 2.
+        }
+    }
+    return (counter);
 }
 
 export { component, renderTodos }
