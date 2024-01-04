@@ -115,16 +115,37 @@ body {
 
 .sideItem { /* This allows for 14 projects on the sidebar. Will have to prevent user from creating more in the future*/
     /* nvm, we can prob just add overflow: scroll or something. */
-    display: flex;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
     width: 100%;
     height: 7%;
     cursor: pointer;
     font-size: 1.4em;
+}
+
+.sideItemTitle {
+    height: 100%;
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.sidebarHeader:hover, .sideItem:hover {
+.sideItemDelete {
+    display: flex;
+    justify-self: center;
+    align-self: center;
+    max-width: 60%;
+    height: auto;
+    margin-right: 30%;
+    color: white;
+}
+
+.sideItemDelete:hover {
+    max-width: 70%;
+    height: auto;
+}
+
+.sidebarHeader:hover, .sideItemTitle:hover {
     text-decoration: underline;
     background-color: #203552;
 }

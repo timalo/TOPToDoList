@@ -314,7 +314,7 @@ function renderProjects(projectList) {
     })
 }
 
-//Used to render todos to content box
+//Used to render todos to content window
 function renderTodos(projectId="") { //takes projectId as parameter. Only todos with that projectId are rendered. Also changes the title above the main content window
     document.getElementsByClassName("contentMain")[0].innerHTML = ""; //clear the content window first.
     let titleDiv = document.getElementsByClassName("contentHeader")[0];
@@ -337,15 +337,22 @@ function renderTodos(projectId="") { //takes projectId as parameter. Only todos 
     }
 }
 
-function drawProject(project) {
+function drawProject(project) { //divide sideItem into clickable project name and delete project icon.
     const sideBar = document.getElementsByClassName("sideBarContent")[0];
     let projectDiv = document.createElement('div');
     projectDiv.classList.add("sideItem");
-    projectDiv.setAttribute("id", project.projectId);
-    projectDiv.innerHTML = project.title + " " + project.projectId;
-    const mainDiv = document.getElementsByClassName("contentMain")[0]
-    projectDiv.onclick = function(){ renderTodos(project.projectId); }
-    sideBar.appendChild(projectDiv)
+    let sideItemTitle = document.createElement('div');
+    sideItemTitle.classList.add("sideItemTitle");
+    sideItemTitle.setAttribute("id", project.projectId);
+    sideItemTitle.innerHTML = project.title;
+    sideItemTitle.onclick = function(){ renderTodos(project.projectId); }
+    const sideItemDelete = document.createElement('img');
+    sideItemDelete.classList.add("sideItemDelete");
+    sideItemDelete.src = "../src/recycle-bin-line-icon.svg";
+    sideItemDelete.onclick = function() { deleteProject(project.projectId); }
+    projectDiv.appendChild(sideItemTitle);
+    projectDiv.appendChild(sideItemDelete);
+    sideBar.appendChild(projectDiv);
 }
 
 function drawToDo(todo) {
@@ -398,6 +405,13 @@ function addDetailsButton(div) {
     detailsButton.classList.add("detailsButton");
     detailsButton.innerHTML = "Details / Edit";
     div.appendChild(detailsButton);
+}
+
+function deleteProject(projectId) {
+    console.log("Deleting project: " + projectId);
+    //TODO: Delete project here. Will also have to delete all todos of said project.
+    //After that will have to look into if adding new projects after this one works.
+    //removing one project from inbetween might cause problems
 }
 
 function findFirstFreeID(list) { 
