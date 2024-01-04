@@ -201,14 +201,16 @@ body {
   /* Modal Content/Box */
   .modalContent {
     display: grid;
-    grid-template-rows: 0.5fr 1fr 2fr 1fr 1fr 1fr;
+    grid-template-rows: 0.5fr 1fr 2fr 1fr 1fr;
     align-items: center;
     background-color: #fefefe;
     margin: 15% auto; /* 15% from the top and centered */
+    margin-bottom: 0;
     padding: 10px;
     border: 1px solid #888;
     width: 25%; /* Could be more or less, depending on screen size */
-    height: 40%;
+    height: 50%;
+    overflow: auto;
   }
   
   .close:hover,
@@ -218,9 +220,26 @@ body {
     cursor: pointer;
   }
 
+.modalTitleDiv {
+    display: flex;
+    height: 70%;
+    align-items: center;
+}
+
+.titleInput {
+    height: 70%;
+    font-size: 1.2em;
+}
+
+.modalDescription {
+    display: flex;
+    height: 80%;
+    align-items: center;
+}
+
 .descriptionInput {
     resize: vertical;
-    max-height: 100px;
+    height: 80%;
     width: 80%;
 }
 

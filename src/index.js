@@ -1,11 +1,12 @@
 import { component, renderTodos } from "./functions.js";
 import "./styles.css";
 
-//To-Do object should have at least a title, description, due date, and a priority, also an optional project it is under.
+//To-Do object should have at least a title, due date, and a priority, also an optional project it is under. Description also optional
 //Priority is a string out of the following: [Low, Medium, High]
 
 let toDoList = []; //all todo items will be stored here. 
 let projectList = []; //all projects here. todo can have a projectID it is associated to.
+
 
 class ToDoObject {
     constructor(title, desc, dueDate, priority, projectId) {

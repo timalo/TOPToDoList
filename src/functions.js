@@ -1,6 +1,9 @@
 import {ToDoObject, Project, toDoList, projectList } from "./index.js";
 
-//This file bloated terribly. This is not good. 
+//This file bloated terribly. lol
+
+let currentProject = 0; //This global var holds the projectId of the currently visible project. Can be used to push todos with correct projectId. 0 = show all
+
 function component() { //This function creates the HTML structure for the page on page load.
     const container = document.createElement('div');
     container.classList.add("container");
@@ -11,6 +14,7 @@ function component() { //This function creates the HTML structure for the page o
     const showAllToDosOption = document.createElement('div');
     showAllToDosOption.classList.add("sidebarHeader")
     showAllToDosOption.innerHTML = "Show All";
+    showAllToDosOption.onclick = function() { renderTodos() };
     sideBar.appendChild(showAllToDosOption);
     //On the side panel we could have list of projects and as the last option a button for adding a new project
 
@@ -125,15 +129,16 @@ function component() { //This function creates the HTML structure for the page o
     modalDueDate.appendChild(dueDateInput);
     modalContentDiv.appendChild(modalDueDate);
 
-    const modalProject = document.createElement('div');
+/*     const modalProject = document.createElement('div'); //This block commented out since we don't probably need to project input on the modal.
     modalProject.classList.add("modalProject");
     const projectLabel = document.createElement('label');
     projectLabel.innerHTML = "Project: (Leave empty if no project) ";
     const projectInput = document.createElement('select');
     projectInput.classList.add("projectInput");
+    //projectInput.setAttribute('id', 'projectInput');
     modalProject.appendChild(projectLabel);
     modalProject.appendChild(projectInput);
-    modalContentDiv.appendChild(modalProject);
+    modalContentDiv.appendChild(modalProject); */
 
 
     const modalPriority = document.createElement('div'); //We can attach the submit button to the same bottom div as the priority selector.
@@ -179,7 +184,7 @@ function component() { //This function creates the HTML structure for the page o
                 newDescription = modalDescriptionInput.value;
             }
             let newDueDate = dueDateInput.value;
-            let newProject = ""; //for now
+            let newProject = currentProject;
             let newPriority = priorityInput.value;
             submitTodo(newTitle, newDescription, newDueDate, newPriority, newProject); //This pushes the todo into the array.
             clearModalInputs();
@@ -214,18 +219,18 @@ function component() { //This function creates the HTML structure for the page o
         modalDiv.style.display = "block";
         //when this button is clicked, we want to populate the dropdown menu selector for a project with existing projects.
         //Could be done calling a function which changes modalProject innerHTML
-        addProjectsToModal(projectList);
+        //addProjectsToModal(projectList);
     }
 
     window.onclick = function(event) {
         if (event.target == modalDiv) {
             modalDiv.style.display = "none";
-            document.getElementsByClassName("projectInput")[0].innerHTML = ""; //empties the project list if the modal is hidden.
-            //This prevent duplicate projects from showing up.
+            //document.getElementsByClassName("projectInput")[0].innerHTML = ""; //empties the project list if the modal is hidden.
+            //This prevents duplicate projects from showing up.
         }
         else if (event.target == newProjectModal) {
             newProjectModal.style.display = "none";
-            document.getElementsByClassName("projectTitleInput")[0].value = "";
+            //document.getElementsByClassName("projectTitleInput")[0].value = "";
         }
     }
 
@@ -233,12 +238,11 @@ function component() { //This function creates the HTML structure for the page o
     return container;
 }
 
-function addProjectsToModal(projectList) {
+/* function addProjectsToModal(projectList) { //COMMENTED OUT DUE TO SCRAPPING THE PROJECT SELECT
     const projectInputDiv = document.getElementsByClassName("projectInput")[0];
     let emptyOption = document.createElement('option');
     emptyOption.selected = true;
     emptyOption.value = "";
-    emptyOption.innerHTML = "<no project>";
     projectInputDiv.appendChild(emptyOption);
     projectList.forEach((item) => {
         addProjectSelect(item, projectInputDiv);
@@ -250,14 +254,14 @@ function addProjectSelect(project, div){
     optionDiv.value = project.projectId;
     optionDiv.innerHTML = project.title;
     div.appendChild(optionDiv);
-}
+} */
 
 function submitTodo(title, desc, dueDate, priority, projectId) {
     console.log("adding todo");
     console.log(title, desc, dueDate, projectId, priority);
     let newTodo = new ToDoObject(title, desc, dueDate, priority, projectId);
     toDoList.push(newTodo);
-    renderTodos(toDoList);
+    renderTodos(currentProject);
 }
 
 function submitProject(title) {
@@ -274,7 +278,6 @@ function clearModalInputs() { //clears the modal and hides it
     document.getElementsByClassName("titleInput")[0].value = "";
     document.getElementsByClassName("descriptionInput")[0].value = "";
     document.getElementsByClassName("dueDateInput")[0].value = "";
-    document.getElementsByClassName("projectInput")[0].value = "";
     document.getElementsByClassName("priorityInput")[0].value = "";
     document.getElementsByClassName("modal")[0].style.display = "none";
 }
@@ -312,20 +315,36 @@ function renderProjects(projectList) {
 }
 
 //Used to render todos to content box
-function renderTodos(toDoList) {
+function renderTodos(projectId="") { //takes projectId as parameter. Only todos with that projectId are rendered. Also changes the title above the main content window
     document.getElementsByClassName("contentMain")[0].innerHTML = ""; //clear the content window first.
-    toDoList.forEach((item) => {
-        drawToDo(item);
-    })
+    let titleDiv = document.getElementsByClassName("contentHeader")[0];
+    if(projectId == ""){
+        titleDiv.innerHTML = "All todos";
+        currentProject = 0;
+        toDoList.forEach((item) => {
+            drawToDo(item);
+        })
+    }
+    else {
+        let projectTitle = projectList.filter((project) => project.projectId == projectId)[0].title; //there is most likely a better way to do this.
+        console.log("this should be now the project title: " + projectTitle);
+        titleDiv.innerHTML = projectTitle;
+        let filteredList = toDoList.filter((todo) => todo.projectId == projectId);
+        currentProject = projectId; //this should always exist if ended here.
+        filteredList.forEach((item) => {
+            drawToDo(item);
+        })
+    }
 }
 
 function drawProject(project) {
     const sideBar = document.getElementsByClassName("sideBarContent")[0];
     let projectDiv = document.createElement('div');
     projectDiv.classList.add("sideItem");
+    projectDiv.setAttribute("id", project.projectId);
     projectDiv.innerHTML = project.title + " " + project.projectId;
-    projectDiv.onclick = function(){ renderProjectTodos(); }
-    //TODO: function that renders todos of only the selected project.
+    const mainDiv = document.getElementsByClassName("contentMain")[0]
+    projectDiv.onclick = function(){ renderTodos(project.projectId); }
     sideBar.appendChild(projectDiv)
 }
 
@@ -359,7 +378,6 @@ function addTitleDiv(todoTitle, div) {
 }
 
 function addDueDateDiv(todoDueDate, div) {
-    console.log("adding duedate");
     let dueDateDiv = document.createElement('div');
     dueDateDiv.classList.add("dueDateDiv");
     dueDateDiv.innerHTML = todoDueDate;
@@ -367,7 +385,6 @@ function addDueDateDiv(todoDueDate, div) {
 }
 
 function addPriorityDiv(todoPriority, div) {
-    console.log("trying to add priority div with value: " + todoPriority);
     let priorityDiv = document.createElement('div');
     if(todoPriority == "Low"){priorityDiv.classList.add("low", "priority")};
     if(todoPriority == "Medium"){priorityDiv.classList.add("medium", "priority")};
