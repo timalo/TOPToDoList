@@ -238,7 +238,7 @@ function component() { //This function creates the HTML structure for the page o
     return container;
 }
 
-/* function addProjectsToModal(projectList) { //COMMENTED OUT DUE TO SCRAPPING THE PROJECT SELECT
+/* function addProjectsToModal(projectList) { //COMMENTED OUT DUE TO SCRAPPING THE PROJECT SELECT IN MODAL
     const projectInputDiv = document.getElementsByClassName("projectInput")[0];
     let emptyOption = document.createElement('option');
     emptyOption.selected = true;
@@ -408,10 +408,33 @@ function addDetailsButton(div) {
 }
 
 function deleteProject(projectId) {
-    console.log("Deleting project: " + projectId);
-    //TODO: Delete project here. Will also have to delete all todos of said project.
-    //After that will have to look into if adding new projects after this one works.
-    //removing one project from inbetween might cause problems
+    console.log("ProjectList looks like: " + projectList);
+    console.log("Deleting project: " + projectList[parseInt(projectId-1)]);
+
+    deleteProjectTodos(parseInt(projectId));
+
+    projectList.splice(parseInt(projectId-1), 1); //this finally deletes the project.
+    renderProjects(projectList);
+}
+
+function deleteProjectTodos(projectId) { // This deletes all todos with given projectId.
+    // removing objects from array in js is done using .splice(), which requires array indexes.
+    // By going through the array from the end to start, we can remove the elements without messing up the indexes of future yet-to-be-removed items.
+    // Switch to show all view after deleting.
+    for (let i = toDoList.length; i > 0; i--) {
+        console.log("checking for delete " + i-1);
+        if (toDoList[i-1].projectId == projectId) {
+            deleteTodo(i-1);
+        }
+    }
+    currentProject = 0;
+    renderTodos();
+}
+
+function deleteTodo(index) { //deletes a single todo at the given index in toDoList.
+    console.log("deleting " + index);
+    toDoList.splice(index, 1);
+    renderTodos(currentProject);
 }
 
 function findFirstFreeID(list) { 
@@ -428,6 +451,7 @@ function findFirstFreeID(list) {
         }
         else {
             // push project to array in correct index here.
+            // project should be in correct index so deleting it will be easier.
             // .splice() works here. f. ex. .splice(2, 0, 3) inserts number 3 at index 2.
         }
     }

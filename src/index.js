@@ -17,16 +17,10 @@ class ToDoObject {
         this.projectId = projectId;
         this.done = false;
     }
-
     toggleDone(){
         this.done = !this.done;
     }
-    setPriority(priority) {
-        this.priority = priority;
-    }
-    setTitle(title) {
-        this.title = title;
-    }
+    //Should've written more methods for these classes and used them.
 }
 
 class Project {
