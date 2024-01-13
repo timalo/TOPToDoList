@@ -1,4 +1,5 @@
 import {ToDoObject, Project, toDoList, projectList } from "./index.js";
+import { format } from "date-fns";
 
 //This file bloated terribly and nothing like this should ever be done. lol
 
@@ -504,7 +505,10 @@ function addTitleDiv(todoTitle, div) {
 function addDueDateDiv(todoDueDate, div) {
     let dueDateDiv = document.createElement('div');
     dueDateDiv.classList.add("dueDateDiv");
-    dueDateDiv.innerHTML = todoDueDate;
+
+    //format date here. Could do it before storing it in the array but welp, this works as well 
+    let formattedDate = format(Date.parse(todoDueDate), "PP")
+    dueDateDiv.innerHTML = formattedDate;
     div.appendChild(dueDateDiv);
 }
 
