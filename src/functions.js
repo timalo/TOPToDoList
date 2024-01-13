@@ -251,15 +251,12 @@ function component() { //This function creates the HTML structure for the page o
     const editPriorityInput = document.createElement('select');
     editPriorityInput.classList.add("editPriorityInput");
 
-    const editPlaceholderPriority = document.createElement('option');
-    editPlaceholderPriority.innerHTML = "";
     const editMinPriority = document.createElement('option');
     editMinPriority.innerHTML = "Low";
     const editMedPriority = document.createElement('option');
     editMedPriority.innerHTML = "Medium";
     const editHiPriority = document.createElement('option');
     editHiPriority.innerHTML = "High";
-    editPriorityInput.appendChild(editPlaceholderPriority);
     editPriorityInput.appendChild(editMinPriority);
     editPriorityInput.appendChild(editMedPriority);
     editPriorityInput.appendChild(editHiPriority);
@@ -276,16 +273,20 @@ function component() { //This function creates the HTML structure for the page o
     editSubmitButton.classList.add("editSubmitButton");
     editSubmitButton.addEventListener("click", function(event) {
         event.preventDefault();
-        const submitValidation = Validate();
+        const submitValidation = ValidateEdit();
         if(submitValidation) {
+            let todoIndex = toDoList.findIndex(todo => todo.todoId == editedTodo);
             let newTitle = editModalTitleInput.value;
             let newDescription = ""; //this is fukked up but will do.
-            if (modalDescriptionInput.value != "") {
+            if (modalDescriptionInput.value != "") { //the further I look at this, the worse it looks. wtf
                 newDescription = modalDescriptionInput.value;
             }
             let newDueDate = editDueDateInput.value;
             let newPriority = priorityInput.value;
-            editTodo(newTitle, newDescription, newDueDate, newPriority);
+            editTodo(todoIndex, newTitle, newDescription, newDueDate, newPriority);
+
+            document.getElementsByClassName("editModal")[0].style.display = "none";
+            renderTodos(currentProject);
         }
     });
 
@@ -400,6 +401,22 @@ function ValidateProject() { //works the same as for the todo modal. returns boo
         return false;
     }
     return true;
+}
+
+function ValidateEdit() { //yes yes, works the same as both of the above. If anyone reads this, send me coffee.
+    if(document.getElementsByClassName("editTitleInput")[0].value == ""){
+        alert("Please enter a title.");
+        return false;
+    }
+    if (document.getElementsByClassName("editDueDateInput")[0].value.length == 0) {
+        alert("Please enter a due date.");
+        return false;
+    }
+    if (document.getElementsByClassName("editPriorityInput")[0].value == "") {
+        alert("Please choose a priority for the todo.");
+        return false;
+    }
+    return true; // if the function reaches here, the form is valid.
 }
 
 function renderProjects(projectList) {
@@ -530,6 +547,13 @@ function deleteTodo(todoIndex, calledFromEdit=false) { //deletes a single todo w
     if(calledFromEdit){
         renderTodos(currentProject);
     }
+}
+
+function editTodo(todoId, title, desc, dueDate, priority) { //Edits an existing todo at given index (not todoId!) in the array.
+        toDoList[todoId].title = title;
+        toDoList[todoId].desc = desc;
+        toDoList[todoId].dueDate = dueDate;
+        toDoList[todoId].priority = priority;
 }
 
 function showEditModal(todoId) { // creates the modal for editing or deleting a todo. We populate the form inputs with info gotten form todoId.
