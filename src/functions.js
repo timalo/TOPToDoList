@@ -187,7 +187,8 @@ function component() { //This function creates the HTML structure for the page o
             let newDueDate = dueDateInput.value;
             let newProject = currentProject;
             let newPriority = priorityInput.value;
-            submitTodo(newTitle, newDescription, newDueDate, newPriority, newProject); //This pushes the todo into the array.
+            let newTodoId = findFirstTodoID(toDoList);
+            submitTodo(newTitle, newDescription, newDueDate, newPriority, newProject, newTodoId); //This pushes the todo into the array.
         }
     });
 
@@ -295,7 +296,10 @@ function component() { //This function creates the HTML structure for the page o
     deleteButton.innerHTML = "Delete todo";
     deleteButton.addEventListener("click", function(event) {
         event.preventDefault();
-        deleteTodo(editedTodo);
+        console.log("clicked delete. Trying to delete todo with id: " + editedTodo);
+        let todoIndex = toDoList.findIndex(todo => todo.todoId == editedTodo);
+        console.log("index for the given todo is: " + todoIndex + ". Deleting it now.");
+        deleteTodo(todoIndex, true);
         document.getElementsByClassName("editModal")[0].style.display = "none";
     });
     
@@ -450,7 +454,6 @@ function drawToDo(todo) {
     const contentMain = document.getElementsByClassName("contentMain")[0];
     let toDoDiv = document.createElement('div');
     
-    //Description only shown when todo is expanded. Done status is shown with the checkbox.
     addCheckbox(toDoDiv);
     addTitleDiv(todo.title, toDoDiv);
     addDueDateDiv(todo.dueDate, toDoDiv);
@@ -516,37 +519,31 @@ function deleteProjectTodos(projectId) { // This deletes all todos with given pr
     }
     for (let i = toDoList.length; i > 0; i--) {
         if (toDoList[i-1].projectId == projectId) {
-            console.log("deleting: " + i);
             deleteTodo(i-1);
         }
     }
     renderTodos();
 }
 
-function deleteTodo(todoId, calledFromEdit=false) { //deletes a single todo with the given index in toDoList. If this is called from edit modal, render the project todos again. Otherwise return to showAll view.
-/*     console.log("deleting " + todoId);
-    let todoIndex = toDoList.findIndex(todo => todo.todoId == todoId);
-    console.log("trying to delete todo with a todoId " + todoId + " found index " + todoIndex + " should be the same"); */
-    toDoList.splice(todoId, 1);
+function deleteTodo(todoIndex, calledFromEdit=false) { //deletes a single todo with the given index in toDoList. If this is called from edit modal, render the project todos again. Otherwise return to showAll view.
+    toDoList.splice(todoIndex, 1);
     if(calledFromEdit){
         renderTodos(currentProject);
     }
 }
 
 function showEditModal(todoId) { // creates the modal for editing or deleting a todo. We populate the form inputs with info gotten form todoId.
-    //let todo = toDoList[todoId-1]; // can't do this.
-    const findTodoIndex = toDoList.findIndex(todo => todo.todoId = todoId);
-    let todo = findTodoIndex(todoId);
+    let todoIndex = toDoList.findIndex(todo => todo.todoId == todoId);
+    let todo = toDoList[todoIndex]; //this should point directly to the todo object.
+
     editedTodo = todoId; //changes the global var.
 
-    // populate inputs in modal.
+    // populate inputs in modal and make modal visible.
     document.getElementsByClassName("editModalHeader")[0].innerHTML = "Editing todo: " + todo.title;
     document.getElementsByClassName("editTitleInput")[0].value = todo.title;
     document.getElementsByClassName("editDescriptionInput")[0].value = todo.desc;
     document.getElementsByClassName("editDueDateInput")[0].value = todo.dueDate;
     document.getElementsByClassName("editPriorityInput")[0].value = todo.priority;
-
-    // make modal visible
     document.getElementsByClassName("editModal")[0].style.display = "block";
 }
 
