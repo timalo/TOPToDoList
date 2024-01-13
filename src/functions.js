@@ -282,11 +282,11 @@ function component() { //This function creates the HTML structure for the page o
                 newDescription = modalDescriptionInput.value;
             }
             let newDueDate = editDueDateInput.value;
-            let newPriority = priorityInput.value;
+            let newPriority = editPriorityInput.value;
+            document.getElementsByClassName("editModal")[0].style.display = "none";
             editTodo(todoIndex, newTitle, newDescription, newDueDate, newPriority);
 
-            document.getElementsByClassName("editModal")[0].style.display = "none";
-            renderTodos(currentProject);
+            renderTodos(currentProject); 
         }
     });
 
@@ -471,7 +471,7 @@ function drawToDo(todo) {
     const contentMain = document.getElementsByClassName("contentMain")[0];
     let toDoDiv = document.createElement('div');
     
-    addCheckbox(toDoDiv);
+    addCheckbox(todo.done, toDoDiv);
     addTitleDiv(todo.title, toDoDiv);
     addDueDateDiv(todo.dueDate, toDoDiv);
     addPriorityDiv(todo.priority, toDoDiv);
@@ -482,12 +482,16 @@ function drawToDo(todo) {
     contentMain.appendChild(toDoDiv);
 }
 
-function addCheckbox(div) {
+function addCheckbox(todoDone, div) {
     let checkboxDiv = document.createElement('div');
     checkboxDiv.classList.add("checkboxDiv");
     checkboxDiv.innerHTML = "<input type=\"checkbox\">";
     checkboxDiv.onclick = function () { changeTodoStatus(div.id) }
     div.appendChild(checkboxDiv);
+    console.log("done status: " + todoDone);
+    if(todoDone) {
+        checkboxDiv.firstChild.checked = true;
+    }
 }
 
 function addTitleDiv(todoTitle, div) {
