@@ -1,8 +1,9 @@
 import {ToDoObject, Project, toDoList, projectList } from "./index.js";
 
-//This file bloated terribly. lol
+//This file bloated terribly and nothing like this should ever be done. lol
 
 let currentProject = 0; //This global var holds the projectId of the currently visible project. Can be used to push todos with correct projectId. 0 = show all
+let editedTodo = 0; // Store currently edited todo here. Couldn't come up with any better way to do this with my crap implementation.
 
 function component() { //This function creates the HTML structure for the page on page load.
     const container = document.createElement('div');
@@ -25,7 +26,7 @@ function component() { //This function creates the HTML structure for the page o
     const addProjectButton = document.createElement('div');
     addProjectButton.classList.add("sidebarFooter");
     addProjectButton.innerHTML = "New project"
-    addProjectButton.onclick = function(){ newProjectModal.style.display = "block"; }
+    addProjectButton.onclick = function(){ newProjectModal.style.display = "block"; document.getElementsByClassName("projectTitleInput")[0].focus(); }
     sideBar.appendChild(addProjectButton);
 
     const contentDiv = document.createElement('div');
@@ -44,6 +45,7 @@ function component() { //This function creates the HTML structure for the page o
     container.appendChild(sideBar);
     container.appendChild(contentDiv);
     
+    //Project modal -----------------------
     const newProjectModal = document.createElement('div');
     newProjectModal.classList.add("projectModal");
     const projectModalContentDiv = document.createElement('form');
@@ -85,8 +87,9 @@ function component() { //This function creates the HTML structure for the page o
     const projectModalSubmitButton = document.createElement('button');
     projectModalSubmitButton.classList.add("projectModalSubmitButton");
     projectModalSubmitDiv.appendChild(projectModalSubmitButton);
-    
-    //Modal window, hidden on page load.
+    //projectModal end------------------------
+
+    //Add todo modal window, hidden on page load.
     const modalDiv = document.createElement('div');
     modalDiv.classList.add("modal");
 
@@ -140,16 +143,13 @@ function component() { //This function creates the HTML structure for the page o
     modalProject.appendChild(projectInput);
     modalContentDiv.appendChild(modalProject); */
 
-
     const modalPriority = document.createElement('div'); //We can attach the submit button to the same bottom div as the priority selector.
     modalPriority.classList.add("modalPriority");
     const priorityInputLabel = document.createElement("label");
     priorityInputLabel.innerHTML = "Priority: ";
     const priorityInput = document.createElement('select');
     priorityInput.classList.add("priorityInput");
-/*     priorityInput.setAttribute("type", "select")
-    priorityInput.setAttribute("id", "priority");
-    priorityInput.setAttribute("name", "priority"); */
+
     const placeholderPriority = document.createElement('option');
     placeholderPriority.innerHTML = "";
     placeholderPriority.disabled = true;
@@ -165,6 +165,7 @@ function component() { //This function creates the HTML structure for the page o
     priorityInput.appendChild(minPriority);
     priorityInput.appendChild(medPriority);
     priorityInput.appendChild(hiPriority);
+
     const priorityDiv = document.createElement('div');
     priorityDiv.classList.add("priorityDiv");
     
@@ -187,20 +188,129 @@ function component() { //This function creates the HTML structure for the page o
             let newProject = currentProject;
             let newPriority = priorityInput.value;
             submitTodo(newTitle, newDescription, newDueDate, newPriority, newProject); //This pushes the todo into the array.
-            clearModalInputs();
         }
     });
 
     submitButton.innerHTML = "Add todo";
 
-    modalPriority.appendChild(submitButton);
-
     modalContentDiv.appendChild(modalPriority);
+    modalPriority.appendChild(submitButton);
     //Modal form end---------------------
+    
+    //edit modal ---------------------------
+    const editModalDiv = document.createElement('div');
+    editModalDiv.classList.add("editModal");
+
+    const editModalContentDiv = document.createElement('form');
+    editModalContentDiv.onsubmit = function(){ submitEdit(); return false}; //may need to change the function here?
+    editModalContentDiv.classList.add("editModalContent");
+
+    const editModalHeader = document.createElement('p');
+    editModalHeader.innerHTML = "Add new todo";
+    editModalHeader.classList.add("editModalHeader");
+    editModalContentDiv.appendChild(editModalHeader);
+
+    const editModalTitle = document.createElement('div');
+    editModalTitle.classList.add('editModalTitleDiv');
+    const editModalTitleInput = document.createElement('input');
+    editModalTitleInput.classList.add("editTitleInput");
+    editModalTitleInput.setAttribute("placeholder", "Todo Title");
+    editModalTitleInput.required = true;
+    editModalTitle.appendChild(editModalTitleInput);
+    editModalContentDiv.appendChild(editModalTitle);
+
+    const editModalDescription = document.createElement('div');
+    editModalDescription.classList.add("editModalDescription");
+    const editModalDescriptionInput = document.createElement('textarea');
+    editModalDescriptionInput.classList.add("editDescriptionInput");
+    editModalDescriptionInput.setAttribute("placeholder", "Description. Can be left empty.");
+    editModalDescription.appendChild(editModalDescriptionInput);
+    editModalContentDiv.appendChild(editModalDescription);
+
+    const editModalDueDate = document.createElement('div');
+    editModalDueDate.classList.add("editModalDueDate");
+    const editDueDateLabel = document.createElement('label');
+    editDueDateLabel.innerHTML = "Due date: ";
+    editModalDueDate.appendChild(editDueDateLabel);
+    const editDueDateInput = document.createElement('input');
+    editDueDateInput.classList.add("editDueDateInput");
+    editDueDateInput.setAttribute("type", "date");
+    editDueDateInput.required = true;
+    editModalDueDate.appendChild(editDueDateInput);
+    editModalContentDiv.appendChild(editModalDueDate);
+
+    const editPriority = document.createElement('div');
+    editPriority.classList.add("editPriority");
+
+    const editModalPriority = document.createElement('div');
+    editModalPriority.classList.add("editModalPriority");
+
+    const editPriorityInputLabel = document.createElement("label");
+    editPriorityInputLabel.innerHTML = "Priority: ";
+    const editPriorityInput = document.createElement('select');
+    editPriorityInput.classList.add("editPriorityInput");
+
+    const editPlaceholderPriority = document.createElement('option');
+    editPlaceholderPriority.innerHTML = "";
+    const editMinPriority = document.createElement('option');
+    editMinPriority.innerHTML = "Low";
+    const editMedPriority = document.createElement('option');
+    editMedPriority.innerHTML = "Medium";
+    const editHiPriority = document.createElement('option');
+    editHiPriority.innerHTML = "High";
+    editPriorityInput.appendChild(editPlaceholderPriority);
+    editPriorityInput.appendChild(editMinPriority);
+    editPriorityInput.appendChild(editMedPriority);
+    editPriorityInput.appendChild(editHiPriority);
+    const editPriorityDiv = document.createElement('div');
+    editPriorityDiv.classList.add("editPriorityDiv");
+    
+    editModalPriority.appendChild(editPriority);
+    editPriority.appendChild(editPriorityInputLabel);
+    editPriority.appendChild(editPriorityInput);
+
+    editModalContentDiv.appendChild(editModalPriority);
+
+    const editSubmitButton = document.createElement('button');
+    editSubmitButton.classList.add("editSubmitButton");
+    editSubmitButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        const submitValidation = Validate();
+        if(submitValidation) {
+            let newTitle = editModalTitleInput.value;
+            let newDescription = ""; //this is fukked up but will do.
+            if (modalDescriptionInput.value != "") {
+                newDescription = modalDescriptionInput.value;
+            }
+            let newDueDate = editDueDateInput.value;
+            let newPriority = priorityInput.value;
+            editTodo(newTitle, newDescription, newDueDate, newPriority);
+        }
+    });
+
+    editSubmitButton.innerHTML = "Submit";
+
+    const deleteButton = document.createElement("button");
+    deleteButton.classList.add("deleteButton");
+    deleteButton.innerHTML = "Delete todo";
+    deleteButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        deleteTodo(editedTodo);
+        document.getElementsByClassName("editModal")[0].style.display = "none";
+    });
+    
+    editModalPriority.appendChild(editSubmitButton);
+    editModalPriority.appendChild(deleteButton);
+    editModalDiv.appendChild(editPriorityDiv);
+
+    editModalDiv.appendChild(editModalContentDiv);
+    //edit modal end---------------------------
+
 
     modalDiv.appendChild(modalContentDiv);
     container.appendChild(newProjectModal);
     container.appendChild(modalDiv);
+    container.appendChild(editModalDiv);
 
 
     const contentMain = document.createElement('div');
@@ -217,20 +327,18 @@ function component() { //This function creates the HTML structure for the page o
 
     addTodoButton.onclick = function() {
         modalDiv.style.display = "block";
-        //when this button is clicked, we want to populate the dropdown menu selector for a project with existing projects.
-        //Could be done calling a function which changes modalProject innerHTML
-        //addProjectsToModal(projectList);
+        document.getElementsByClassName("titleInput")[0].focus();
     }
 
     window.onclick = function(event) {
         if (event.target == modalDiv) {
             modalDiv.style.display = "none";
-            //document.getElementsByClassName("projectInput")[0].innerHTML = ""; //empties the project list if the modal is hidden.
-            //This prevents duplicate projects from showing up.
         }
         else if (event.target == newProjectModal) {
             newProjectModal.style.display = "none";
-            //document.getElementsByClassName("projectTitleInput")[0].value = "";
+        }
+        else if (event.target == editModalDiv) {
+            editModalDiv.style.display = "none";
         }
     }
 
@@ -238,39 +346,23 @@ function component() { //This function creates the HTML structure for the page o
     return container;
 }
 
-/* function addProjectsToModal(projectList) { //COMMENTED OUT DUE TO SCRAPPING THE PROJECT SELECT IN MODAL
-    const projectInputDiv = document.getElementsByClassName("projectInput")[0];
-    let emptyOption = document.createElement('option');
-    emptyOption.selected = true;
-    emptyOption.value = "";
-    projectInputDiv.appendChild(emptyOption);
-    projectList.forEach((item) => {
-        addProjectSelect(item, projectInputDiv);
-    })
-}
-
-function addProjectSelect(project, div){
-    let optionDiv = document.createElement('option');
-    optionDiv.value = project.projectId;
-    optionDiv.innerHTML = project.title;
-    div.appendChild(optionDiv);
-} */
-
 function submitTodo(title, desc, dueDate, priority, projectId) {
-    console.log("adding todo");
-    console.log(title, desc, dueDate, projectId, priority);
-    let newTodo = new ToDoObject(title, desc, dueDate, priority, projectId);
-    toDoList.push(newTodo);
+    let todoId = findFirstTodoID(toDoList);
+    //console.log(title, desc, dueDate, projectId, priority);
+    let newTodo = new ToDoObject(title, desc, dueDate, priority, projectId, todoId);
+    toDoList.splice(todoId, 0, newTodo)
     renderTodos(currentProject);
+    clearModalInputs();
 }
 
 function submitProject(title) {
     let newProjectId = findFirstFreeID(projectList);
-    console.log("adding project: " + title);
-    console.log("project ID: " + newProjectId);
+    //console.log("adding project: " + title);
+    //console.log("project ID: " + newProjectId);
 
     let newProject = new Project(title, newProjectId);
-    projectList.push(newProject);
+    //console.log("Adding project: " + title + " with id " + newProjectId);
+    projectList.splice(newProjectId, 0, newProject);
     renderProjects(projectList);
 }
 
@@ -282,8 +374,7 @@ function clearModalInputs() { //clears the modal and hides it
     document.getElementsByClassName("modal")[0].style.display = "none";
 }
 
-function Validate() { // returns true if new todo modal form is filled correctly. Throws alert if some of the required windows is not filled.
-    console.log("Validating form...");
+function Validate() { // returns true if new todo modal form or edit is filled correctly. Throws alert if some of the required windows is not filled.
     if(document.getElementsByClassName("titleInput")[0].value == ""){
         alert("Please enter a title.");
         return false;
@@ -327,7 +418,7 @@ function renderTodos(projectId="") { //takes projectId as parameter. Only todos 
     }
     else {
         let projectTitle = projectList.filter((project) => project.projectId == projectId)[0].title; //there is most likely a better way to do this.
-        console.log("this should be now the project title: " + projectTitle);
+        //console.log("this should be now the project title: " + projectTitle);
         titleDiv.innerHTML = projectTitle;
         let filteredList = toDoList.filter((todo) => todo.projectId == projectId);
         currentProject = projectId; //this should always exist if ended here.
@@ -367,6 +458,7 @@ function drawToDo(todo) {
     addDetailsButton(toDoDiv);
 
     toDoDiv.classList.add("todoItem");
+    toDoDiv.setAttribute('id', todo.todoId);
     contentMain.appendChild(toDoDiv);
 }
 
@@ -404,16 +496,14 @@ function addDetailsButton(div) {
     let detailsButton = document.createElement('button');
     detailsButton.classList.add("detailsButton");
     detailsButton.innerHTML = "Details / Edit";
+    detailsButton.onclick = function() { showEditModal(div.id) } //calls the function with id of parent div
     div.appendChild(detailsButton);
 }
 
-function deleteProject(projectId) {
-    console.log("ProjectList looks like: " + projectList);
-    console.log("Deleting project: " + projectList[parseInt(projectId-1)]);
-
-    deleteProjectTodos(parseInt(projectId));
-
-    projectList.splice(parseInt(projectId-1), 1); //this finally deletes the project.
+function deleteProject(projectId) { //This deletes the project with the given projectId.
+    deleteProjectTodos(projectId);
+    let projectIndex = projectList.findIndex(project => project.projectId == projectId);
+    projectList.splice(projectIndex, 1); //this finally deletes the project.
     renderProjects(projectList);
 }
 
@@ -421,20 +511,43 @@ function deleteProjectTodos(projectId) { // This deletes all todos with given pr
     // removing objects from array in js is done using .splice(), which requires array indexes.
     // By going through the array from the end to start, we can remove the elements without messing up the indexes of future yet-to-be-removed items.
     // Switch to show all view after deleting.
+    if(toDoList.length == 0){
+        return;
+    }
     for (let i = toDoList.length; i > 0; i--) {
-        console.log("checking for delete " + i-1);
         if (toDoList[i-1].projectId == projectId) {
+            console.log("deleting: " + i);
             deleteTodo(i-1);
         }
     }
-    currentProject = 0;
     renderTodos();
 }
 
-function deleteTodo(index) { //deletes a single todo at the given index in toDoList.
-    console.log("deleting " + index);
-    toDoList.splice(index, 1);
-    renderTodos(currentProject);
+function deleteTodo(todoId, calledFromEdit=false) { //deletes a single todo with the given index in toDoList. If this is called from edit modal, render the project todos again. Otherwise return to showAll view.
+/*     console.log("deleting " + todoId);
+    let todoIndex = toDoList.findIndex(todo => todo.todoId == todoId);
+    console.log("trying to delete todo with a todoId " + todoId + " found index " + todoIndex + " should be the same"); */
+    toDoList.splice(todoId, 1);
+    if(calledFromEdit){
+        renderTodos(currentProject);
+    }
+}
+
+function showEditModal(todoId) { // creates the modal for editing or deleting a todo. We populate the form inputs with info gotten form todoId.
+    //let todo = toDoList[todoId-1]; // can't do this.
+    const findTodoIndex = toDoList.findIndex(todo => todo.todoId = todoId);
+    let todo = findTodoIndex(todoId);
+    editedTodo = todoId; //changes the global var.
+
+    // populate inputs in modal.
+    document.getElementsByClassName("editModalHeader")[0].innerHTML = "Editing todo: " + todo.title;
+    document.getElementsByClassName("editTitleInput")[0].value = todo.title;
+    document.getElementsByClassName("editDescriptionInput")[0].value = todo.desc;
+    document.getElementsByClassName("editDueDateInput")[0].value = todo.dueDate;
+    document.getElementsByClassName("editPriorityInput")[0].value = todo.priority;
+
+    // make modal visible
+    document.getElementsByClassName("editModal")[0].style.display = "block";
 }
 
 function findFirstFreeID(list) { 
@@ -450,12 +563,26 @@ function findFirstFreeID(list) {
             counter++;
         }
         else {
-            // push project to array in correct index here.
-            // project should be in correct index so deleting it will be easier.
-            // .splice() works here. f. ex. .splice(2, 0, 3) inserts number 3 at index 2.
+            return counter;
+        } 
+    }
+    return counter;
+}
+
+function findFirstTodoID(list) {
+    if (list.length == 0) {
+        return 1;
+    }
+    let counter = 1;
+    for(let i = 0; i < list.length; i++) {
+        if (counter == list[i].todoId) {
+            counter++;
+        }
+        else {
+            return counter;
         }
     }
-    return (counter);
+    return counter;
 }
 
 export { component, renderTodos }
