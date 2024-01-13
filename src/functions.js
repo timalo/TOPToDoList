@@ -486,6 +486,7 @@ function addCheckbox(div) {
     let checkboxDiv = document.createElement('div');
     checkboxDiv.classList.add("checkboxDiv");
     checkboxDiv.innerHTML = "<input type=\"checkbox\">";
+    checkboxDiv.onclick = function () { changeTodoStatus(div.id) }
     div.appendChild(checkboxDiv);
 }
 
@@ -569,6 +570,12 @@ function showEditModal(todoId) { // creates the modal for editing or deleting a 
     document.getElementsByClassName("editDueDateInput")[0].value = todo.dueDate;
     document.getElementsByClassName("editPriorityInput")[0].value = todo.priority;
     document.getElementsByClassName("editModal")[0].style.display = "block";
+}
+
+function changeTodoStatus(todoId) {
+    let todoIndex = toDoList.findIndex(todo => todo.todoId == todoId);
+    let todo = toDoList[todoIndex];
+    todo.toggleDone();
 }
 
 function findFirstFreeID(list) { 

@@ -21,10 +21,6 @@ class ToDoObject {
     toggleDone(){
         this.done = !this.done;
     }
-    showInfo() {
-        return(this.title, this.desc. this.dueDate, this.priority, this.projectId, this.todoId);
-    }
-    //Should've written more methods for these classes and used them.
 }
 
 class Project {
