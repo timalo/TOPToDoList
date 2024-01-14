@@ -1,4 +1,4 @@
-import {ToDoObject, Project, toDoList, projectList } from "./index.js";
+import { ToDoObject, Project, toDoList, projectList } from "./index.js";
 import { format } from "date-fns";
 
 //This file bloated terribly and nothing like this should ever be done. lol
@@ -287,7 +287,8 @@ function component() { //This function creates the HTML structure for the page o
             document.getElementsByClassName("editModal")[0].style.display = "none";
             editTodo(todoIndex, newTitle, newDescription, newDueDate, newPriority);
 
-            renderTodos(currentProject); 
+            renderTodos(currentProject);
+            populateStorage();
         }
     });
 
@@ -359,6 +360,8 @@ function submitTodo(title, desc, dueDate, priority, projectId) {
     toDoList.splice(todoId, 0, newTodo)
     renderTodos(currentProject);
     clearModalInputs();
+    populateStorage();
+    console.log("added todo. List now looks like: " + toDoList);
 }
 
 function submitProject(title) {
@@ -370,6 +373,7 @@ function submitProject(title) {
     //console.log("Adding project: " + title + " with id " + newProjectId);
     projectList.splice(newProjectId, 0, newProject);
     renderProjects(projectList);
+    populateStorage();
 }
 
 function clearModalInputs() { //clears the modal and hides it
@@ -421,10 +425,12 @@ function ValidateEdit() { //yes yes, works the same as both of the above. If any
 }
 
 function renderProjects(projectList) {
-    document.getElementsByClassName("sideBarContent")[0].innerHTML = "";
-    projectList.forEach((item) => {
-        drawProject(item);
-    })
+    if(projectList){ // for some reason this doesn't exist on page load and returns an error on forEach.
+        document.getElementsByClassName("sideBarContent")[0].innerHTML = "";
+        projectList.forEach((item) => {
+            drawProject(item);
+        })
+    }
 }
 
 //Used to render todos to content window
@@ -506,8 +512,8 @@ function addDueDateDiv(todoDueDate, div) {
     let dueDateDiv = document.createElement('div');
     dueDateDiv.classList.add("dueDateDiv");
 
-    //format date here. Could do it before storing it in the array but welp, this works as well 
-    let formattedDate = format(Date.parse(todoDueDate), "PP")
+    //format date here. Could do it before storing it in the array but welp, this works as well
+    let formattedDate = format(Date.parse(todoDueDate), "PP");
     dueDateDiv.innerHTML = formattedDate;
     div.appendChild(dueDateDiv);
 }
@@ -534,6 +540,7 @@ function deleteProject(projectId) { //This deletes the project with the given pr
     let projectIndex = projectList.findIndex(project => project.projectId == projectId);
     projectList.splice(projectIndex, 1); //this finally deletes the project.
     renderProjects(projectList);
+    populateStorage();
 }
 
 function deleteProjectTodos(projectId) { // This deletes all todos with given projectId.
@@ -556,6 +563,7 @@ function deleteTodo(todoIndex, calledFromEdit=false) { //deletes a single todo w
     if(calledFromEdit){
         renderTodos(currentProject);
     }
+    populateStorage();
 }
 
 function editTodo(todoId, title, desc, dueDate, priority) { //Edits an existing todo at given index (not todoId!) in the array.
@@ -584,6 +592,7 @@ function changeTodoStatus(todoId) {
     let todoIndex = toDoList.findIndex(todo => todo.todoId == todoId);
     let todo = toDoList[todoIndex];
     todo.toggleDone();
+    populateStorage();
 }
 
 function findFirstFreeID(list) { 
@@ -621,4 +630,44 @@ function findFirstTodoID(list) {
     return counter;
 }
 
-export { component, renderTodos }
+//localStorage shenanigans
+function populateStorage() { // this should push todoList and projectList into localStorage
+    console.log("populating localStorage");
+    localStorage.setItem("toDoList", JSON.stringify(toDoList));
+    localStorage.setItem("projectList", JSON.stringify(projectList));
+}
+
+function pageLoadStorage() {
+    console.log("trying to load todos");
+    if(localStorage.getItem("toDoList")){
+        console.log("loading todos..");
+        const loadedTodoList = JSON.parse(localStorage.getItem("toDoList"));
+        for (let i = 0; i < loadedTodoList.length; i++){
+            let newArrayTodo = new ToDoObject(loadedTodoList[i].title, loadedTodoList[i].desc, loadedTodoList[i].dueDate, loadedTodoList[i].priority, loadedTodoList[i].projectId, loadedTodoList[i].todoId, loadedTodoList[i].done);
+            toDoList.push(newArrayTodo);
+        }
+        console.log("loaded todos: " + loadedTodoList);
+        //toDoList = loadTodoArray;
+        console.log("todoList should now be loaded like this: " + toDoList);
+        renderTodos();
+    }
+
+    console.log("trying to load projects");
+    if(localStorage.getItem("projectList")) {        
+        console.log("loading projects..")
+        const loadedProjectList = JSON.parse(localStorage.getItem("projectList"));
+        let loadProjectArray = []
+        for (let i = 0; i < loadedProjectList.length; i++) {
+            let newArrayProject = new Project(loadedProjectList[i].title, loadedProjectList[i].projectId);
+            projectList.push(newArrayProject);
+        }
+        console.log("loaded projects: " + loadedProjectList);
+        //projectList = loadProjectArray;
+        renderProjects(projectList);
+    }
+    //render todos and projects
+    
+}
+
+
+export { component, renderTodos, renderProjects, pageLoadStorage }
